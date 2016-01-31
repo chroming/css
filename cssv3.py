@@ -79,26 +79,20 @@ def maincss():
     try:
         os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
         #os.mkdir('/'+today.strftime('%Y%m%d'))
-        '''
-    except WindowsError as err:
-        print err
-        if '[Error 183]' in err:
-            print err
-            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
-        '''
+
     except OSError as err:
-        print err
         if 'File exists' in err:
             raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
         elif 'Permission denied' in err:
             raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序......")
             return
-        elif 'Error 183' in err:
-             raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
-
+        elif 183 in err.args : #Windows下目录已存在返回代码检测
+            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+        else:
+            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
+            return
     except:
         raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
-        print err
         return
 
     csslocal = localdir+'/css-src/nt/'
