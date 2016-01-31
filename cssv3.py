@@ -79,8 +79,6 @@ def maincss():
 
     today = datetime.date.today()
 
-
-
     csslocal = localdir+'/css-src/nt/'
 
     print("正在获取%s下css文件列表……"%csslocal)
