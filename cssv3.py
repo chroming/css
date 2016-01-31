@@ -74,19 +74,31 @@ def maincss():
     reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
 
     today = datetime.date.today()
-
+    #os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
 
     try:
         os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
         #os.mkdir('/'+today.strftime('%Y%m%d'))
+        '''
+    except WindowsError as err:
+        print err
+        if '[Error 183]' in err:
+            print err
+            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+        '''
     except OSError as err:
+        print err
         if 'File exists' in err:
-            raw_input("需生成文件已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
         elif 'Permission denied' in err:
             raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序......")
             return
-    else:
-        raw_input("所需文件生成出错! 请检查后重新运行! 按Enter关闭程序......")
+        elif 'Error 183' in err:
+             raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+
+    except:
+        raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
+        print err
         return
 
     csslocal = localdir+'/css-src/nt/'
