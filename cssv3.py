@@ -87,7 +87,8 @@ def maincss():
     try:
         csslist = os.listdir(csslocal)
     except OSError as err:
-        if err.args[0] == 3:
+        print err
+        if err.args[0] == 3 or 2:
             raw_input("css-src目录不存在!请检查后重新运行!按Enter关闭程序……")
             return
 
