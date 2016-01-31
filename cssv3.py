@@ -97,7 +97,7 @@ def maincss():
         elif 'Permission denied' in err:
             raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
             return
-        elif 183 in err.args : #Windows下目录已存在返回代码检测
+        elif err.args[0] == 183 : #Windows下目录已存在返回代码检测
             raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认……")
         else:
             raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
