@@ -69,9 +69,9 @@ def compress_css():
     print("文件压缩成功！")
 
 
-def maincss():
+def maincss(localdir):
     global reglis, newcsslocal
-    localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
+    #localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
     if not localdir:
         localdir = os.getcwd()
     # 压缩函数的正则及需替换成的内容
@@ -115,4 +115,5 @@ def maincss():
             compress_css()
 
 if __name__ == '__main__':
-    maincss()
+    localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
+    maincss(localdir)
