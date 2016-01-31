@@ -27,11 +27,12 @@ def import_css(reallocal):
 # 第一层CSS导入及复制文件函数
 def root_css(reallocal):
     global rootcsstmp
+    print("正在创建新文件%s"%newcsslocal)
     realdir = os.path.dirname(reallocal)+'/'
     cssfile = open(reallocal,'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
-    if importlist != []:
+    if importlist:
         for imone in importlist:
             importlocal = re.findall(r'\"(.*?)\"', imone)[0]
             imreallocal = realdir+importlocal
@@ -46,6 +47,7 @@ def root_css(reallocal):
         newfile.seek(0)
         newfile.write(rcss)
         newfile.close()
+    print("新文件%s创建成功！开始压缩……"%newcsslocal)
     cssfile.close()
 
 
@@ -64,30 +66,41 @@ def compress_css():
         newcssfile.flush()
         os.fsync(newcssfile.fileno())
         newcssfile.close()
+    print("文件压缩成功！")
 
 
 def maincss():
-
     global reglis, newcsslocal
-    localdir = raw_input('请输入css-src目录所在路径: ')
+    localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
+    if not localdir:
+        localdir = os.getcwd()
     # 压缩函数的正则及需替换成的内容
     reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
 
     today = datetime.date.today()
-    #os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
+
+
+
+    csslocal = localdir+'/css-src/nt/'
+
+    print("正在获取%s下css文件列表……"%csslocal)
+    try:
+        csslist = os.listdir(csslocal)
+    except OSError as err:
+        if err.args[0] == 3:
+            raw_input("css-src目录不存在!请检查后重新运行!按Enter关闭程序……")
+            return
 
     try:
         os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
-        #os.mkdir('/'+today.strftime('%Y%m%d'))
-
     except OSError as err:
         if 'File exists' in err:
-            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认…….")
         elif 'Permission denied' in err:
-            raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序......")
+            raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
             return
         elif 183 in err.args : #Windows下目录已存在返回代码检测
-            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认......")
+            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认……")
         else:
             raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
             return
@@ -95,8 +108,6 @@ def maincss():
         raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
         return
 
-    csslocal = localdir+'/css-src/nt/'
-    csslist = os.listdir(csslocal)
     for imname in csslist:
         ext = imname.split('.')[-1]
         if ext == 'css':
