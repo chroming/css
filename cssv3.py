@@ -20,7 +20,7 @@ def compress_css(newcsslocal):
         newcssfile.flush()
         os.fsync(newcssfile.fileno())
         newcssfile.close()
-    print("文件压缩成功！")
+    print("文件压缩成功！\n")
 
 # 循环导入CSS文件内容
 def import_css(reallocal):
@@ -43,29 +43,29 @@ def import_css(reallocal):
 # 第一层CSS导入及复制文件函数
 def root_css(reallocal):
     global rootcsstmp
-    localdir,imname = os.path.split(reallocal)
+    localdir, imname = os.path.split(reallocal)
     today = datetime.date.today()
     newcsslocal = localdir+'/'+today.strftime('%Y%m%d')+'/'+imname
-    try:
-        os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
-    except OSError as err:
-        if 'File exists' in err:
-            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认…….")
-        elif 'Permission denied' in err:
-            raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
-            return
-        elif err.args[0] == 183 : #Windows下目录已存在返回代码检测
-            raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认……")
-        else:
-            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
-            return
-    except:
-        raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
-        return
+    if os.path.isfile(newcsslocal):
+        raw_input("需生成文件已存在! 程序将重新生成并覆盖该文件! 按Enter确认……\n")
+    elif not os.path.exists(localdir+'/'+today.strftime('%Y%m%d')):
+        try:
+            os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
+        except OSError as err:
 
-    print("正在创建新文件%s"%newcsslocal)
+            if 'Permission denied' in err:
+                raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
+                return
+            else:
+                raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
+                return
+        except:
+            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
+            return
+
+    print("正在创建新文件%s……\n"%newcsslocal)
     realdir = os.path.dirname(reallocal)+'/'
-    cssfile = open(reallocal,'r+')
+    cssfile = open(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     if importlist:
@@ -83,15 +83,12 @@ def root_css(reallocal):
         newfile.seek(0)
         newfile.write(rcss)
         newfile.close()
-    print("新文件%s创建成功！开始压缩……"%newcsslocal)
+    print("新文件%s创建成功！开始压缩……\n"%newcsslocal)
     compress_css(newcsslocal)
     cssfile.close()
 
 
-
-
-
-def maincss(localdir):
+def maincss(localdir=False):
     #global reglis, newcsslocal
     #localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
     if not localdir:
@@ -99,35 +96,39 @@ def maincss(localdir):
     # 压缩函数的正则及需替换成的内容
     #reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
 
-    #today = datetime.date.today()
+    today = datetime.date.today()
 
     csslocal = localdir+'/css-src/nt/'
 
-    print("正在获取%s下css文件列表……"%csslocal)
+    print("正在获取%s下css文件列表……\n"%csslocal)
     try:
         csslist = os.listdir(csslocal)
     except OSError as err:
         if err.args[0] == 3 or 2:
             raw_input("%s目录不存在!请检查后重新运行!按Enter关闭程序……"%csslocal)
             return
-    '''
+
+        '''
         try:
             os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
+            print 111
         except OSError as err:
+            print err
             if 'File exists' in err:
-                raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认…….")
+                raw_input("需生成目录已存在!  按Enter确认…….")
             elif 'Permission denied' in err:
                 raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
                 return
             elif err.args[0] == 183 : #Windows下目录已存在返回代码检测
-                raw_input("需生成目录已存在! 程序将重新生成并覆盖该文件! 按Enter确认……")
+                raw_input("需生成目录已存在!  按Enter确认……")
             else:
-                raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
+                raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
                 return
         except:
-            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序......")
+            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
             return
-    '''
+        '''
+
     for imname in csslist:
         ext = imname.split('.')[-1]
         if ext == 'css':
