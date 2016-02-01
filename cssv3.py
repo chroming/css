@@ -8,25 +8,37 @@ import re
 
 def opencss(csslocal, flag='r'):
     cssdir = os.path.dirname(csslocal)
-    cssfile = open(csslocal, r)
-    importlist = re.findall(r'\@import \".*?\";', cssfile)
-    for imone in importlist:
-        import_local = re.search(r'\"(.*?)\"', imone).group(1)
-        imreallocal = cssdir + import_local
-        if imreallocal == csslocal:
-            print("css文件中不允许调用自身! 放弃读取文件%s! "%csslocal)
-            return
-        else:
-            imfile = open(imreallocal, r)
-            imlist = re.findall(r'\@import \".*?\";', imfile)
-            for imone in imlist:
-                im_local = re.search(r'\"(.*?)\"', imone).group(1)
-                imrelocal = os.path.dirname(imreallocal)+im_local
-                if imrelocal == csslocal:
-                    print("不允许循环调用! 放弃读取文件%s")%imreallocal
-                    return
+    cssfile = open(csslocal, 'r')
+    importlist = re.findall(r'\@import \".*?\";', cssfile.read())
+    if importlist:
+        for imone in importlist:
+            import_local = re.search(r'\"(.*?)\"', imone).group(1)
+            imreallocal = cssdir+'/'+import_local
+            if imreallocal == csslocal:
+                print("css文件中不允许调用自身! 放弃读取文件%s! "%csslocal)
+                cssfile.close()
+                return
+            else:
+                imfile = open(imreallocal, 'r')
+                imlist = re.findall(r'\@import \".*?\";', imfile.read())
+                if imlist:
+                    for imone in imlist:
+                        im_local = re.search(r'\"(.*?)\"', imone).group(1)
+                        imrelocal = os.path.dirname(imreallocal)+'/'+im_local
+                        if imrelocal == csslocal:
+                            print("不允许循环调用! 放弃读取文件%s")%imreallocal
+                            cssfile.close()
+                            imfile.close()
+                            return
+                        else:
+                            cssfile.close()
+                            imfile.close()
+                            return open(csslocal, flag)
                 else:
+                    cssfile.close()
+                    imfile.close()
                     return open(csslocal, flag)
+    return open(csslocal, flag)
 
 
 # 压缩CSS函数
@@ -53,7 +65,7 @@ def import_css(imlocal):
     global importcsstmp
     realdir = os.path.dirname(imlocal)+'/'
     try:
-        cssfile = open(imlocal, 'r')
+        cssfile = opencss(imlocal, 'r')
     except:
         print("文件%s不存在,导入失败! \n"%imlocal)
         return
@@ -96,7 +108,7 @@ def root_css(reallocal):
 
     print("正在创建新文件%s……\n"%newcsslocal)
     realdir = os.path.dirname(reallocal)+'/'
-    cssfile = open(reallocal, 'r+')
+    cssfile = opencss(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     # 如果内容中有import 语句则调用import_css()
