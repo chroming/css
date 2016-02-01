@@ -4,20 +4,23 @@
 import datetime
 import os
 import re
+import sys
+import glob
 
-class UnicodeStreamFilter:  
-    def __init__(self, target):  
-        self.target = target  
-        self.encoding = 'utf-8'  
-        self.errors = 'replace'  
-        self.encode_to = self.target.encoding  
-    def write(self, s):  
-        if type(s) == str:  
-            s = s.decode('utf-8')  
-        s = s.encode(self.encode_to, self.errors).decode(self.encode_to)  
-        self.target.write(s)  
-          
-if sys.stdout.encoding == 'cp936':  
+
+class UnicodeStreamFilter:
+    def __init__(self, target):
+        self.target = target
+        self.encoding = 'utf-8'
+        self.errors = 'replace'
+        self.encode_to = self.target.encoding
+    def write(self, s):
+        if type(s) == str:
+            s = s.decode('utf-8')
+        s = s.encode(self.encode_to, self.errors).decode(self.encode_to)
+        self.target.write(s)
+
+if sys.stdout.encoding == 'cp936':
     sys.stdout = UnicodeStreamFilter(sys.stdout)
 
 
@@ -37,7 +40,7 @@ def compress_css(newcsslocal):
         newcssfile.flush()
         os.fsync(newcssfile.fileno())
         newcssfile.close()
-    print(u"文件压缩成功！\n")
+    print("文件压缩成功！\n")
 
 
 # 循环导入其他层CSS文件并替换内容
@@ -82,7 +85,6 @@ def root_css(reallocal):
         try:
             os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
         except OSError as err:
-
             if 'Permission denied' in err:
                 raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
                 return
@@ -124,21 +126,17 @@ def root_css(reallocal):
 def maincss(localdir=False):
     if not localdir:
         localdir = os.getcwd()
-    csslocal = localdir+'/css-src/nt/'
-    print(u"正在获取%s下css文件列表……\n"%csslocal)
-    try:
-        csslist = os.listdir(csslocal)
-    except OSError as err:
-        if err.args[0] == 3 or 2:
-            raw_input("%s目录不存在!请检查后重新运行!按Enter关闭程序……"%csslocal)
-            return
+    print("正在获取%s下css文件列表……\n"%localdir)
 
-    for imname in csslist:
-        ext = imname.split('.')[-1]
-        if ext == 'css':
-            reallocal = csslocal+imname
-            root_css(reallocal)
+    csslist = glob.glob(r'%s/*.css'%localdir)
+    if csslist:
+        for imname in csslist:
+            print imname
+            root_css(imname)
+    else:
+        print("目录%s内无css文件!请检查后重新运行！"%localdir)
+        return
 
 if __name__ == '__main__':
-    localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
+    localdir = raw_input("请输入需遍历文件所在目录，默认为当前目录： ")
     maincss(localdir)
