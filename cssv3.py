@@ -6,6 +6,29 @@ import os
 import re
 
 
+def opencss(csslocal, flag='r'):
+    cssdir = os.path.dirname(csslocal)
+    cssfile = open(csslocal, r)
+    importlist = re.findall(r'\@import \".*?\";', cssfile)
+    for imone in importlist:
+        import_local = re.search(r'\"(.*?)\"', imone).group(1)
+        imreallocal = cssdir + import_local
+        if imreallocal == csslocal:
+            print("css文件中不允许调用自身! 放弃读取文件%s! "%csslocal)
+            return
+        else:
+            imfile = open(imreallocal, r)
+            imlist = re.findall(r'\@import \".*?\";', imfile)
+            for imone in imlist:
+                im_local = re.search(r'\"(.*?)\"', imone).group(1)
+                imrelocal = os.path.dirname(imreallocal)+im_local
+                if imrelocal == csslocal:
+                    print("不允许循环调用! 放弃读取文件%s")%imreallocal
+                    return
+                else:
+                    return open(csslocal, flag)
+
+
 # 压缩CSS函数
 def compress_css(newcsslocal):
     # 压缩css的正则规则
@@ -26,15 +49,19 @@ def compress_css(newcsslocal):
 
 
 # 循环导入其他层CSS文件并替换内容
-def import_css(reallocal):
+def import_css(imlocal):
     global importcsstmp
-    realdir = os.path.dirname(reallocal)+'/'
-    cssfile = open(reallocal, 'r+')
+    realdir = os.path.dirname(imlocal)+'/'
+    try:
+        cssfile = open(imlocal, 'r')
+    except:
+        print("文件%s不存在,导入失败! \n"%imlocal)
+        return
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     if importlist:
         for imone in importlist:
-            import_local = re.findall(r'\"(.*?)\"', imone)[0]
+            import_local = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+import_local
             csscontent = import_css(imreallocal)
             importcsstmp = rcss.replace(str(imone), str(csscontent))
@@ -75,7 +102,7 @@ def root_css(reallocal):
     # 如果内容中有import 语句则调用import_css()
     if importlist:
         for imone in importlist:
-            importlocal = re.findall(r'\"(.*?)\"', imone)[0]
+            importlocal = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+importlocal
             csscontent = import_css(imreallocal)
             newfile = open(newcsslocal, 'w')
