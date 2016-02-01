@@ -5,43 +5,7 @@ import datetime
 import os
 import re
 
-'''
-def opencss(csslocal, flag='r'):
-    cssdir = os.path.dirname(csslocal)
-    cssfile = open(csslocal, 'r')
-    importlist = re.findall(r'\@import \".*?\";', cssfile.read())
-    if importlist:
-        for imone in importlist:
-            import_local = re.search(r'\"(.*?)\"', imone).group(1)
-            imreallocal = cssdir+'/'+import_local
-            if imreallocal == csslocal:
-                print("css文件中不允许调用自身! 放弃读取文件%s! "%csslocal)
-                cssfile.close()
-                return
-            else:
-                imfile = open(imreallocal, 'r')
-                imlist = re.findall(r'\@import \".*?\";', imfile.read())
-                if imlist:
-                    for imone in imlist:
-                        im_local = re.search(r'\"(.*?)\"', imone).group(1)
-                        imrelocal = os.path.dirname(imreallocal)+'/'+im_local
-                        if imrelocal == csslocal:
-                            print("不允许循环调用! 放弃读取文件%s")%imreallocal
-                            cssfile.close()
-                            imfile.close()
-                            return
-                        else:
-                            cssfile.close()
-                            imfile.close()
-                            return open(csslocal, flag)
-                else:
-                    cssfile.close()
-                    imfile.close()
-                    return open(csslocal, flag)
-    return open(csslocal, flag)
-'''
 
-opencss = open
 # 压缩CSS函数
 def compress_css(newcsslocal):
     # 压缩css的正则规则
@@ -60,12 +24,13 @@ def compress_css(newcsslocal):
         newcssfile.close()
     print("文件压缩成功！\n")
 
+
 # 循环导入其他层CSS文件并替换内容
 def import_css(imlocal, filelist=[]):
     global importcsstmp
     realdir = os.path.dirname(imlocal)+'/'
     try:
-        cssfile = opencss(imlocal, 'r')
+        cssfile = open(imlocal, 'r')
     except:
         print("文件%s不存在,导入失败! \n"%imlocal)
         return
@@ -76,9 +41,10 @@ def import_css(imlocal, filelist=[]):
         for imone in importlist:
             import_local = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+import_local
-            if imreallocal in filelist:
-                print("文件%s存在循环调用现象!放弃读取该文件!")
-                return
+            # 判断是否有循环调用现象
+            if imreallocal in filelist:  #
+                print("文件%s存在循环调用现象!放弃导入循环内容!\n"%imreallocal)
+                return ''
             else:
                 csscontent = import_css(imreallocal, filelist)
                 importcsstmp = rcss.replace(str(imone), str(csscontent))
@@ -89,7 +55,7 @@ def import_css(imlocal, filelist=[]):
 
 # 第一层CSS导入及替换内容
 def root_css(reallocal):
-    filelist = [reallocal]
+    filelist = [reallocal]  # 初始化调用文件的上层文件列表
     global rootcsstmp
     localdir, imname = os.path.split(reallocal)
     today = datetime.date.today()
@@ -114,7 +80,7 @@ def root_css(reallocal):
 
     print("正在创建新文件%s……\n"%newcsslocal)
     realdir = os.path.dirname(reallocal)+'/'
-    cssfile = opencss(reallocal, 'r+')
+    cssfile = open(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     # 如果内容中有import 语句则调用import_css()
@@ -124,7 +90,7 @@ def root_css(reallocal):
             imreallocal = realdir+importlocal
             csscontent = import_css(imreallocal, filelist)
             newfile = open(newcsslocal, 'w')
-            rootcsstmp=rcss.replace(str(imone), str(csscontent))
+            rootcsstmp = rcss.replace(str(imone), str(csscontent))
             rcss = rootcsstmp
             newfile.write(rootcsstmp)
             newfile.close()
