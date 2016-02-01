@@ -5,7 +5,7 @@ import datetime
 import os
 import re
 
-
+'''
 def opencss(csslocal, flag='r'):
     cssdir = os.path.dirname(csslocal)
     cssfile = open(csslocal, 'r')
@@ -39,8 +39,9 @@ def opencss(csslocal, flag='r'):
                     imfile.close()
                     return open(csslocal, flag)
     return open(csslocal, flag)
+'''
 
-
+opencss = open
 # 压缩CSS函数
 def compress_css(newcsslocal):
     # 压缩css的正则规则
@@ -59,9 +60,8 @@ def compress_css(newcsslocal):
         newcssfile.close()
     print("文件压缩成功！\n")
 
-
 # 循环导入其他层CSS文件并替换内容
-def import_css(imlocal):
+def import_css(imlocal, filelist=[]):
     global importcsstmp
     realdir = os.path.dirname(imlocal)+'/'
     try:
@@ -72,18 +72,24 @@ def import_css(imlocal):
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     if importlist:
+        filelist.append(imlocal)
         for imone in importlist:
             import_local = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+import_local
-            csscontent = import_css(imreallocal)
-            importcsstmp = rcss.replace(str(imone), str(csscontent))
-            rcss = importcsstmp
+            if imreallocal in filelist:
+                print("文件%s存在循环调用现象!放弃读取该文件!")
+                return
+            else:
+                csscontent = import_css(imreallocal, filelist)
+                importcsstmp = rcss.replace(str(imone), str(csscontent))
+                rcss = importcsstmp
     cssfile.close()
     return rcss
 
 
 # 第一层CSS导入及替换内容
 def root_css(reallocal):
+    filelist = [reallocal]
     global rootcsstmp
     localdir, imname = os.path.split(reallocal)
     today = datetime.date.today()
@@ -116,7 +122,7 @@ def root_css(reallocal):
         for imone in importlist:
             importlocal = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+importlocal
-            csscontent = import_css(imreallocal)
+            csscontent = import_css(imreallocal, filelist)
             newfile = open(newcsslocal, 'w')
             rootcsstmp=rcss.replace(str(imone), str(csscontent))
             rcss = rootcsstmp
