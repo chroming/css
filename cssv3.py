@@ -5,8 +5,10 @@ import datetime
 import os
 import re
 
+
 # 压缩CSS函数
 def compress_css(newcsslocal):
+    # 压缩css的正则规则
     reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
     for reg in reglis:
         newcssfile = open(newcsslocal, 'r')
@@ -22,6 +24,7 @@ def compress_css(newcsslocal):
         newcssfile.close()
     print("文件压缩成功！\n")
 
+
 # 循环导入CSS文件内容
 def import_css(reallocal):
     global importcsstmp
@@ -29,7 +32,7 @@ def import_css(reallocal):
     cssfile = open(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
-    if importlist != []:
+    if importlist:
         for imone in importlist:
             import_local = re.findall(r'\"(.*?)\"', imone)[0]
             imreallocal = realdir+import_local
@@ -40,7 +43,7 @@ def import_css(reallocal):
     return rcss
 
 
-# 第一层CSS导入及复制文件函数
+# 第一层CSS导入及复制文件
 def root_css(reallocal):
     global rootcsstmp
     localdir, imname = os.path.split(reallocal)
@@ -89,17 +92,9 @@ def root_css(reallocal):
 
 
 def maincss(localdir=False):
-    #global reglis, newcsslocal
-    #localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
     if not localdir:
         localdir = os.getcwd()
-    # 压缩函数的正则及需替换成的内容
-    #reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
-
-    today = datetime.date.today()
-
     csslocal = localdir+'/css-src/nt/'
-
     print("正在获取%s下css文件列表……\n"%csslocal)
     try:
         csslist = os.listdir(csslocal)
@@ -108,34 +103,11 @@ def maincss(localdir=False):
             raw_input("%s目录不存在!请检查后重新运行!按Enter关闭程序……"%csslocal)
             return
 
-        '''
-        try:
-            os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
-            print 111
-        except OSError as err:
-            print err
-            if 'File exists' in err:
-                raw_input("需生成目录已存在!  按Enter确认…….")
-            elif 'Permission denied' in err:
-                raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
-                return
-            elif err.args[0] == 183 : #Windows下目录已存在返回代码检测
-                raw_input("需生成目录已存在!  按Enter确认……")
-            else:
-                raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
-                return
-        except:
-            raw_input("所需目录生成出错! 请检查后重新运行! 按Enter关闭程序……")
-            return
-        '''
-
     for imname in csslist:
         ext = imname.split('.')[-1]
         if ext == 'css':
             reallocal = csslocal+imname
-            #newcsslocal = localdir+'/'+today.strftime('%Y%m%d')+'/'+imname
             root_css(reallocal)
-            #compress_css()
 
 if __name__ == '__main__':
     localdir = raw_input('请输入css-src目录所在路径，默认为当前路径: ')
