@@ -13,7 +13,7 @@ def compress_css(newcsslocal):
     for reg in reglis:
         newcssfile = open(newcsslocal, 'r')
         newcssread = newcssfile.read()
-        repl = re.sub(reg, reglis[reg], newcssread, flags=re.S)
+        repl = re.sub(reg, reglis[reg], newcssread, flags=re.S)  # 根据正则替换特定字符串
         newcssfile.close()
         os.remove(newcsslocal)
         newcssfile = open(newcsslocal, 'w')
@@ -25,7 +25,7 @@ def compress_css(newcsslocal):
     print("文件压缩成功！\n")
 
 
-# 循环导入CSS文件内容
+# 循环导入其他层CSS文件并替换内容
 def import_css(reallocal):
     global importcsstmp
     realdir = os.path.dirname(reallocal)+'/'
@@ -43,12 +43,13 @@ def import_css(reallocal):
     return rcss
 
 
-# 第一层CSS导入及复制文件
+# 第一层CSS导入及替换内容
 def root_css(reallocal):
     global rootcsstmp
     localdir, imname = os.path.split(reallocal)
     today = datetime.date.today()
     newcsslocal = localdir+'/'+today.strftime('%Y%m%d')+'/'+imname
+    # 判断要生成的文件和目录是否存在
     if os.path.isfile(newcsslocal):
         raw_input("需生成文件已存在! 程序将重新生成并覆盖该文件! 按Enter确认……\n")
     elif not os.path.exists(localdir+'/'+today.strftime('%Y%m%d')):
@@ -71,6 +72,7 @@ def root_css(reallocal):
     cssfile = open(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
+    # 如果内容中有import 语句则调用import_css()
     if importlist:
         for imone in importlist:
             importlocal = re.findall(r'\"(.*?)\"', imone)[0]
@@ -81,16 +83,18 @@ def root_css(reallocal):
             rcss = rootcsstmp
             newfile.write(rootcsstmp)
             newfile.close()
+    # 没有import 语句则直接复制到新文件
     else:
         newfile = open(newcsslocal, 'w')
         newfile.seek(0)
         newfile.write(rcss)
         newfile.close()
     print("新文件%s创建成功！开始压缩……\n"%newcsslocal)
-    compress_css(newcsslocal)
+    compress_css(newcsslocal)  # 调用compress_css()压缩新文件
     cssfile.close()
 
 
+# 读取目录下css文件并调用root_css()处理文件内容
 def maincss(localdir=False):
     if not localdir:
         localdir = os.getcwd()
