@@ -58,7 +58,7 @@ def import_css(imlocal, filelist=[]):
         filelist.append(imlocal)
         for imone in importlist:
             import_local = re.search(r'\"(.*?)\"', imone).group(1)
-            imreallocal = realdir+import_local
+            imreallocal = os.path.join(realdir, import_local)
             imreallocal = os.path.normpath(imreallocal)
             # 判断是否有循环调用现象
             if imreallocal in filelist:  #
@@ -78,13 +78,13 @@ def root_css(reallocal):
     global rootcsstmp
     localdir, imname = os.path.split(reallocal)
     today = datetime.date.today()
-    newcsslocal = localdir+'/'+today.strftime('%Y%m%d')+'/'+imname
+    newcsslocal = os.path.join(localdir, today.strftime('%Y%m%d'), imname)
     # 判断要生成的文件和目录是否存在
     if os.path.isfile(newcsslocal):
         raw_input("需生成文件已存在! 程序将重新生成并覆盖该文件! 按Enter确认……\n")
-    elif not os.path.exists(localdir+'/'+today.strftime('%Y%m%d')):
+    elif not os.path.exists(os.path.join(localdir, today.strftime('%Y%m%d'))):
         try:
-            os.mkdir(localdir+'/'+today.strftime('%Y%m%d'))
+            os.mkdir(os.path.join(localdir, today.strftime('%Y%m%d')))
         except OSError as err:
             if 'Permission denied' in err:
                 raw_input("目录无写入权限! 请检查后重新运行! 按Enter关闭程序……")
@@ -97,7 +97,7 @@ def root_css(reallocal):
             return
 
     print("正在创建新文件%s……\n"%newcsslocal)
-    realdir = os.path.dirname(reallocal)+'/'
+    realdir = os.path.dirname(reallocal)
     cssfile = open(reallocal, 'r+')
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
@@ -105,7 +105,8 @@ def root_css(reallocal):
     if importlist:
         for imone in importlist:
             importlocal = re.search(r'\"(.*?)\"', imone).group(1)
-            imreallocal = os.path.normpath(realdir+importlocal)
+            #imreallocal = os.path.normpath(realdir+importlocal)
+            imreallocal = os.path.join(realdir, importlocal)
             csscontent = import_css(imreallocal, filelist)
             newfile = open(newcsslocal, 'w')
             rootcsstmp = rcss.replace(str(imone), str(csscontent))
