@@ -7,7 +7,7 @@ import re
 import sys
 import glob
 
-
+#处理windows系统下中文乱码问题
 class UnicodeStreamFilter:
     def __init__(self, target):
         self.target = target
@@ -28,6 +28,14 @@ if sys.stdout.encoding == 'cp936':
 def compress_css(newcsslocal):
     # 压缩css的正则规则
     reglis = {r'/\*.*?\*/': '', r'\n': '', r'\r': '', r'\v': '', r'\t': '', r' *; *': ';', r' *{ *': '{', r' *} *': '}'}
+    
+    '''
+    reglis 为压缩文件的正则规则。
+    reglis 采用字典形式存储：{key:value,},其中
+    key表示css内容中需匹配的规则，使用正则表达式匹配
+    value表示需要替换成的字符串。
+    '''
+    
     for reg in reglis:
         newcssfile = open(newcsslocal, 'r')
         newcssread = newcssfile.read()
@@ -105,7 +113,6 @@ def root_css(reallocal):
     if importlist:
         for imone in importlist:
             importlocal = re.search(r'\"(.*?)\"', imone).group(1)
-            #imreallocal = os.path.normpath(realdir+importlocal)
             imreallocal = os.path.join(realdir, importlocal)
             csscontent = import_css(imreallocal, filelist)
             newfile = open(newcsslocal, 'w')
