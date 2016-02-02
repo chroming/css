@@ -59,7 +59,7 @@ def import_css(imlocal, filelist=[]):
         cssfile = open(imlocal, 'r')
     except:
         print("文件%s不存在,导入失败! \n"%imlocal)
-        return
+        return ''
     rcss = cssfile.read()
     importlist = re.findall(r'\@import \".*?\";', rcss)
     if importlist:
@@ -143,7 +143,7 @@ def maincss(localdir=False):
             print imname
             root_css(imname)
     else:
-        print("目录%s内无css文件!请检查后重新运行！"%localdir)
+        print("目录%s内无css文件或无权限读取文件列表!请检查后重新运行！"%localdir)
         return
 
 if __name__ == '__main__':
