@@ -47,6 +47,7 @@ def compress_css(newcsslocal):
 def import_css(imlocal, filelist=[]):
     global importcsstmp
     realdir = os.path.dirname(imlocal)+'/'
+    realdir = os.path.normpath(realdir)
     try:
         cssfile = open(imlocal, 'r')
     except:
@@ -59,6 +60,9 @@ def import_css(imlocal, filelist=[]):
         for imone in importlist:
             import_local = re.search(r'\"(.*?)\"', imone).group(1)
             imreallocal = realdir+import_local
+            imreallocal = os.path.normpath(imreallocal)
+            print imreallocal,filelist
+            raw_input("11111")
             # 判断是否有循环调用现象
             if imreallocal in filelist:  #
                 print("文件%s存在循环调用现象!放弃导入循环内容!\n"%imreallocal)
