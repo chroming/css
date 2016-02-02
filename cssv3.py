@@ -105,7 +105,7 @@ def root_css(reallocal):
     if importlist:
         for imone in importlist:
             importlocal = re.search(r'\"(.*?)\"', imone).group(1)
-            imreallocal = realdir+importlocal
+            imreallocal = os.path.normpath(realdir+importlocal)
             csscontent = import_css(imreallocal, filelist)
             newfile = open(newcsslocal, 'w')
             rootcsstmp = rcss.replace(str(imone), str(csscontent))
