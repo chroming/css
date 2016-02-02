@@ -37,31 +37,30 @@
 
 ## 运行方式：
 
-1. 直接在终端运行
-   
-   `python comcss.py`
-   
-   会等待输入需遍历的目录路径。
-   
-2. 在其他程序或终端中导入该程序作为模块：
-   
-   `import comcss`
-   
-   该模块有三个函数可供使用，分别是：
-   
-   + `comcss.maincss(path)`
-     
-     该函数参数为需遍历的目录路径。实现的功能与直接运行实现的功能相同。
-     
-   + `comcss.root_css(cssfilepath)`
-     
-     该函数参数为css文件的路径。实现对单文件读取及内容导入及压缩后保存到YYYYMMDD同名文件下的功能。
-     
-   + `comcss.compress_css(cssfilepath)`
-     
-     该函数参数为css文件的路径。实现对单css文件根据已定义在reglis中的压缩规则进行压缩的功能。
-   
-   *注意：windows下输入路径请使用正斜线`/`代替默认的反斜线`\`*
-   
-   ​
+#### 直接在终端运行
 
+`python comcss.py`
+
+会等待输入需遍历的目录路径。
+
+#### 在其他程序或终端中导入该程序作为模块：
+
+`import comcss`
+
+该模块有三个函数可供使用，分别是：
+
++ `comcss.maincss(path)`
+  
+  该函数参数为需遍历的目录路径。实现的功能与直接运行实现的功能相同。
+  
++ `comcss.root_css(cssfilepath)`
+  
+  该函数参数为css文件的路径。实现对单文件读取及内容导入及压缩后保存到YYYYMMDD同名文件下的功能。
+  
++ `comcss.compress_css(cssfilepath)`
+  
+  该函数参数为css文件的路径。实现对单css文件根据已定义在reglis中的压缩规则进行压缩的功能。
+
+*注意：windows下输入路径请使用正斜线`/`代替默认的反斜线`\`*
+
+​
